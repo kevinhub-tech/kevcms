@@ -1,0 +1,5 @@
+function Api() {
+    return <div><h1>Api Page</h1></div>;
+  }
+  
+  export default Api;
