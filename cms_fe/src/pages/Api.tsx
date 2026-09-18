@@ -2,47 +2,45 @@ function Api() {
   return (
     <main>
       <h1>API keys</h1>
-      <button type="button">Create API key</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Key</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Production</td>
-            <td>pk_live_xxxx</td>
-            <td>
-              <select name="status-prod" defaultValue="active">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </td>
-            <td>
-              <button type="button">Delete</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Development</td>
-            <td>pk_test_xxxx</td>
-            <td>
-              <select name="status-dev" defaultValue="inactive">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </td>
-            <td>
-              <button type="button">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <button type="button">Create API</button>
+      <div className="overflow-x-auto">
+        <table className="table">
+          {/* head */}
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Job</th>
+              <th>Favorite Color</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* row 1 */}
+            <tr className="hover:bg-base-300">
+              <th>1</th>
+              <td>Cy Ganderton</td>
+              <td>Quality Control Specialist</td>
+              <td>Blue</td>
+            </tr>
+            {/* row 2 */}
+            <tr className="hover:bg-base-300">
+              <th>2</th>
+              <td>Hart Hagerty</td>
+              <td>Desktop Support Technician</td>
+              <td>Purple</td>
+            </tr>
+            {/* row 3 */}
+            <tr className="hover:bg-base-300">
+              <th>3</th>
+              <td>Brice Swyre</td>
+              <td>Tax Accountant</td>
+              <td>Red</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
   )
-}
+      }
 
 export default Api
