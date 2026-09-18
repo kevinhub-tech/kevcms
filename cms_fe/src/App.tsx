@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import Home from './pages/Home'
 import Pages from './pages/Pages'
 import Auth from './pages/Auth'
 import Api from './pages/Api'
@@ -11,24 +12,29 @@ function App() {
 
   return (
     <Router>
+      <div className="navbar bg-base-100 shadow-sm" >
+        <div className="flex-1">
+          <a className="btn btn-ghost text-xl">Kev CMS</a>
+        </div>
+        <div className="flex-none">
+          <ul className="menu menu-horizontal px-1">
+            <li> <Link to="/">Home</Link></li>
+            <li> <Link to="/auth">Sign Up</Link></li>
+            <li> <Link to="/auth">login</Link></li>
+            <li> <Link to="/pages">Pages</Link></li>
+            <li>  <Link to="/api">Api</Link></li>
+          </ul>
+        </div>
+      </div>
       <Routes>
-        <Route path="/" element={<Pages />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/pages" element={<Pages />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/api" element={<Api />} />
         <Route path="/edit-pages" element={<EditPage />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
-      <nav>
-        <Link to="/">Pages</Link>
-        <Link to="/auth">Auth</Link>
-        <Link to="/api">Api</Link>
-        <Link to="/edit-pages">Edit Pages</Link>
-        <Link to="/forget-password">Forget Password</Link>
-        <Link to="/reset-password">Reset Password</Link>
-      </nav>
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </Router>
   )
 }
