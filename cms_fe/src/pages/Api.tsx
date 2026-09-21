@@ -1,40 +1,41 @@
+import { BiSolidErrorAlt } from "react-icons/bi";
+import { MdAutorenew } from "react-icons/md";
+
 function Api() {
   return (
     <main>
       <h1>API keys</h1>
-      <button type="button">Create API</button>
+      <div className="text-right py-4">
+        <button className="btn btn-soft btn-primary">Create New API</button>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
           <thead>
             <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
+              <th>No.</th>
+              <th>Api Key</th>
+              <th>Created At</th>
+              <th>Last Used At</th>
+              <th>Revoked At</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {/* row 1 */}
             <tr className="hover:bg-base-300">
               <th>1</th>
-              <td>Cy Ganderton</td>
-              <td>Quality Control Specialist</td>
-              <td>Blue</td>
-            </tr>
-            {/* row 2 */}
-            <tr className="hover:bg-base-300">
-              <th>2</th>
-              <td>Hart Hagerty</td>
-              <td>Desktop Support Technician</td>
-              <td>Purple</td>
-            </tr>
-            {/* row 3 */}
-            <tr className="hover:bg-base-300">
-              <th>3</th>
-              <td>Brice Swyre</td>
-              <td>Tax Accountant</td>
-              <td>Red</td>
+              <td>**************</td>
+              <td> 12:30pm at 21 september </td>
+              <td> 12:40pm at 21 september </td>
+              <td> - </td>
+              <td>
+                <ul>
+                <li><button className="btn btn-outline btn-accent"><MdAutorenew/></button></li>
+                  <li><button className="btn btn-outline btn-error"><BiSolidErrorAlt/></button></li>
+                </ul>
+              </td>
             </tr>
           </tbody>
         </table>
