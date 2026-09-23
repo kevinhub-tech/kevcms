@@ -7,16 +7,16 @@ datasource db {
   provider = "postgresql"
 }
 
-model demo {
-  id        Int     @id @default(autoincrement())
-  user_name String  @db.Char(255)
-  message   String?
+enum contentStatus{
+  DRAFT
+  PUBLISHED
 }
 
 enum LoginMethod{
   GOOGLE
   MANUAL
 }
+
 model Users{
   user_id String @id @default(uuid())
   user_name String @db.VarChar(255)
@@ -28,6 +28,11 @@ model Users{
   reset_password_expires_at DateTime?
   user_login_method LoginMethod
   ApiKeys ApiKeys[]
+  pagesCreated         Pages[]        @relation("PageCreatedBy")
+  pagesUpdated         Pages[]        @relation("PageUpdatedBy")
+  contentsCreated      Contents[]     @relation("ContentCreatedBy")
+  contentsUpdated      Contents[]     @relation("ContentUpdatedBy")
+  ContentLogs ContentLogs[]
 }
 
 model ApiKeys{
@@ -39,4 +44,48 @@ model ApiKeys{
   revoked_at DateTime?
 
   user Users @relation(fields: [user_id], references: [user_id])
+}
+
+model Pages{
+  page_id String @id @default(uuid())
+  page_name String 
+  page_description String
+  page_meta_title String
+  page_meta_desc String
+  page_slug String
+  page_created_at DateTime @default(now())
+  page_updated_at DateTime @updatedAt
+  page_created_by String
+  page_updated_by String
+  content Contents?
+  ContentLogs ContentLogs[]
+  createdByUser Users @relation("PageCreatedBy", fields: [page_created_by], references: [user_id])
+  updatedByUser Users @relation("PageUpdatedBy", fields: [page_updated_by], references: [user_id])
+}
+
+model Contents{
+  content_id String @id @default(uuid())
+  page_id String @unique
+  content Json @db.JsonB
+  content_status contentStatus
+  content_created_at DateTime @default(now())
+  content_updated_at DateTime @updatedAt
+  content_created_by String
+  content_updated_by String
+
+  page Pages @relation(fields: [page_id], references: [page_id])
+  createdByUser Users @relation("ContentCreatedBy", fields: [content_created_by], references: [user_id])
+  updatedByUser Users @relation("ContentUpdatedBy", fields: [content_updated_by], references: [user_id])
+}
+
+model ContentLogs{
+  content_log_id String @id @default(uuid())
+  page_id String
+  content_before Json @db.JsonB 
+  content_after Json @db.JsonB
+  log_created_at DateTime @default(now())
+  log_created_by String
+
+  user Users @relation(fields: [log_created_by], references: [user_id])
+  page Pages @relation(fields: [page_id], references: [page_id])
 }
