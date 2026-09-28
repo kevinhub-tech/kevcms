@@ -40,7 +40,7 @@ export const userController = {
 
             const passwordHasCapital = /[A-Z]/.test(data.password);
             const passwordHasSpecial = /[@$!%*?&]/.test(data.password);
-
+            const passwordHasNumber = /[0-9]/.test(data.password);
             if (!passwordHasCapital) {
                 res.status(409).json({ status: 409, message: "Password must contain at least one capital letter." });
                 return;
@@ -49,8 +49,13 @@ export const userController = {
             if (!passwordHasSpecial) {
                 res.status(409).json({ status: 409, message: "Must contain at least one special symbol (@, $, !, %, *, ?, &) " });
                 return;
-
             }
+
+            if (!passwordHasNumber) {
+                res.status(409).json({ status: 409, message: "Must contain at least one number " });
+                return;
+            }
+
 
             const hashedPassword = await bcrypt.hash(data.password, saltRound);
 

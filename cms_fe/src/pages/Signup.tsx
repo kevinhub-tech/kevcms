@@ -1,26 +1,33 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import KevPopup from '../components/Popup';
+import Loading from '../components/Loading';
+
 
 function SignUp() {
     const [formData, setFormData] = useState({ name: "", email: "", password: "" });
     const [errors, setErrors] = useState({ name: "", email: "", password: "" });
+    const [formError, setFormError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordHasCapital = /[A-Z]/.test(formData.password);
     const passwordHasSpecial = /[@$!%*?&]/.test(formData.password);
+    const passwordHasNumber = /[0-9]/.test(formData.password);
 
     const validators: Record<string, (val: string) => string> = {
         name: (val) => !val ? "Name is required" : "",
-        email: (val) => !val ? "Email is required" 
-                      : !emailRegex.test(val) ? "Please enter a valid email address." 
-                      : "",
+        email: (val) => !val ? "Email is required"
+            : !emailRegex.test(val) ? "Please enter a valid email address."
+                : "",
         password: (val) => !val ? "Password is required" : "",
-      };
-      
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         // validation logic keyed by `name` here
-        setErrors(err => ({...err, [name]: validators[name](value)}));
+        setErrors(err => ({ ...err, [name]: validators[name](value) }));
     };
 
 
@@ -34,18 +41,64 @@ function SignUp() {
         }
     }
 
-    const handleSignUp = (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSignUp = async (e: React.SubmitEvent<HTMLFormElement>) => {
+
+        e.preventDefault();
+        setLoading(true);
+        setFormError("");
         // Check if all values are there or not. If not, show error
+        const newErrors = {
+            name: validators.name(formData.name),
+            email: validators.email(formData.email),
+            password: validators.password(formData.password),
+        };
+        setErrors(newErrors); // this also makes the red messages appear for untouched fields
+
+        const hasFieldErrors = Object.values(newErrors).some(msg => msg !== "");
+        const passwordValid = passwordHasCapital && passwordHasSpecial && passwordHasNumber;
+
+        if (hasFieldErrors || !passwordValid) {
+            setLoading(false);
+            return;
+        }
 
         // Call sign up api from backend to register new user if all values are there
-        e.preventDefault();
-        alert(`name is ${formData.name}. email is ${formData.email}, password is ${formData.password}`)
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/user-signup`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: formData }),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                setFormError(result.message); // e.g. "An account with this email already exists."
+                setLoading(false);
+                return;
+            }
+
+            navigate("/pages"); // useNavigate() from react-router-dom
+        } catch {
+            //show a popup or toast noti if something went wrong
+            setFormError("Could not reach the server. Please try again.");
+            setLoading(false);
+            return;
+        } finally {
+            setLoading(false);
+        }
     }
 
 
     return (
         <main>
             <h1>Sign Up</h1>
+
+            {/* FULL SCREEN LOADING OVERLAY */}
+            {loading && (
+              <Loading message="Creating an account..."></Loading>
+            )}
 
             <section className="flex justify-center align-center">
                 <form onSubmit={handleSignUp}>
@@ -66,6 +119,7 @@ function SignUp() {
                             <ul>
                                 {!passwordHasCapital && (<li style={{ color: 'red', marginBottom: '4px' }}> Must contain at least one capital letter. </li>)}
                                 {!passwordHasSpecial && (<li style={{ color: 'red', marginBottom: '4px' }}>  Must contain at least one special symbol (@, $, !, %, *, ?, &) </li>)}
+                                {!passwordHasNumber && (<li style={{ color: 'red', marginBottom: '4px' }}>  Must contain at least one number </li>)}
                             </ul>
                         )}
 
@@ -82,6 +136,8 @@ function SignUp() {
                         <label className='text-center'>Already have an account?<Link to="/login"> Login Here!</Link> </label>
                     </fieldset>
                 </form>
+                <KevPopup heading="Sign Up Failed" message={formError} onClose={() => setFormError("")}></KevPopup>
+
             </section>
         </main>
     )

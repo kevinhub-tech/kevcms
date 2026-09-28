@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import Loading from '../components/Loading';
+import KevPopup from '../components/Popup';
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState("");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validators: Record<string, (val: string) => string> = {
@@ -31,18 +35,61 @@ function Login() {
     }
   }
 
-  const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
+
+    e.preventDefault();
+    setLoading(true);
+    setFormError("");
     // Check if all values are there or not. If not, show error
+    const newErrors = {
+      email: validators.email(formData.email),
+      password: validators.password(formData.password),
+    };
+    setErrors(newErrors); // this also makes the red messages appear for untouched fields
+
+    const hasFieldErrors = Object.values(newErrors).some(msg => msg !== "");
+
+    if (hasFieldErrors) {
+      setLoading(false);
+      return;
+    }
 
     // Call sign up api from backend to register new user if all values are there
-    e.preventDefault();
-    alert(`email is ${formData.email}, password is ${formData.password}`)
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/user-login`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: formData }),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        setFormError(result.message); // e.g. "An account with this email already exists."
+        setLoading(false);
+        return;
+      }
+
+      navigate("/pages"); // useNavigate() from react-router-dom
+    } catch {
+      //show a popup or toast noti if something went wrong
+      setFormError("Could not reach the server. Please try again.");
+      setLoading(false);
+      return;
+    } finally {
+      setLoading(false);
+    }
   }
 
 
   return (
     <main>
       <h1>Login</h1>
+      {/* FULL SCREEN LOADING OVERLAY */}
+      {loading && (
+        <Loading message="Logging into the account..."></Loading>
+      )}
 
       <section className="flex justify-center align-center">
         <form onSubmit={handleLogin}>
@@ -50,11 +97,11 @@ function Login() {
             <legend className="fieldset-legend">Login</legend>
 
             <label className="label" htmlFor='email'>Email</label>
-            <input type="email" name="email" id="email" className="input" placeholder="Email" onChange={handleChange} onBlur={handleBlur}/>
+            <input type="email" name="email" id="email" className="input" placeholder="Email" onChange={handleChange} onBlur={handleBlur} />
             {errors.email && <p style={{ color: 'red', fontSize: '14px' }}>{errors.email}</p>}
 
             <label className="label" htmlFor='password'>Password</label>
-            <input type="password" name="password" id="password" className="input" placeholder="Password" onChange={handleChange} onBlur={handleBlur}/>
+            <input type="password" name="password" id="password" className="input" placeholder="Password" onChange={handleChange} onBlur={handleBlur} />
             {errors.password && <p style={{ color: 'red', fontSize: '14px' }}>{errors.password}</p>}
 
             <button className="btn btn-neutral mt-4" type="submit" >Login</button>
@@ -68,6 +115,9 @@ function Login() {
             <label className='text-center'>Forgot password?<Link to="/forget-password"> Click Here</Link> </label>
           </fieldset>
         </form>
+        
+        <KevPopup heading="Login Failed" message={formError} onClose={() => setFormError("")}></KevPopup>
+
       </section>
     </main>
   )
