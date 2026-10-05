@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import KevPopup from '../components/Popup';
+import { useAuth } from '../hooks/useAuth';
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState("");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,6 +73,7 @@ function Login() {
         return;
       }
 
+      setUser(result.data);
       navigate("/pages"); // useNavigate() from react-router-dom
     } catch {
       //show a popup or toast noti if something went wrong

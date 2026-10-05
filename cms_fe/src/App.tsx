@@ -8,11 +8,14 @@ import EditPage from './pages/EditPage'
 import ForgetPassword from './pages/ForgetPassword'
 import ResetPassword from './pages/ResetPassword'
 import './App.css'
+import { AuthProvider } from './hooks/useAuth'
+import { RedirectIfAuthenticated } from './components/RedirectIfAuthenticated'
 
 function App() {
 
   return (
     <Router>
+      <AuthProvider>
       <div className="navbar bg-base-100 shadow-sm" >
         <div className="flex-1">
           <a className="btn btn-ghost text-xl">Kev CMS</a>
@@ -28,15 +31,16 @@ function App() {
         </div>
       </div>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<RedirectIfAuthenticated><Home /></RedirectIfAuthenticated>} />
         <Route path="/pages" element={<Pages />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login/>}/>
+        <Route path="/signup" element={<RedirectIfAuthenticated><SignUp /></RedirectIfAuthenticated>} />
+        <Route path="/login" element={<RedirectIfAuthenticated><Login/></RedirectIfAuthenticated>}/>
         <Route path="/api" element={<Api />} />
         <Route path="/edit-pages" element={<EditPage />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forget-password" element={<RedirectIfAuthenticated><ForgetPassword /></RedirectIfAuthenticated>} />
+        <Route path="/reset-password" element={<RedirectIfAuthenticated><ResetPassword /></RedirectIfAuthenticated>} />
       </Routes>
+      </AuthProvider>
     </Router>
   )
 }
