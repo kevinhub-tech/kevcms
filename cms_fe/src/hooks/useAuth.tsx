@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-
+import Loading from "../components/Loading";
 interface User {
     user_id: string;
     user_name: string;
@@ -10,6 +10,7 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     setUser: (user: User | null) => void;
+    logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,7 +20,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/api/v1/user-check`, {
+        fetch(`${import.meta.env.VITE_API_URL}/api/v1/user-verify`, {
+            method: "GET",
             credentials: "include",
         })
             .then(res => {
@@ -31,8 +33,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .finally(() => setLoading(false));
     }, []);
 
+
+    // Block the entire app until auth verification finishes
+    if (loading) {
+        return <Loading />;
+    }
+
+    const logout = async () => {
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/user-logout`, {
+                method: "POST",
+                credentials: "include",
+            })
+        } catch (err) {
+            console.error("Logout error:", err);
+        } finally {
+            setUser(null); // Instantly clears user state in React
+            setLoading(false);
+        }
+    };
+
+
     return (
-        <AuthContext.Provider value={{ user, loading, setUser }}>
+        <AuthContext.Provider value={{ user, loading, setUser, logout}}>
             {children}
         </AuthContext.Provider>
     );
