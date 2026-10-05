@@ -82,7 +82,11 @@ export const userController = {
                     maxAge: 7 * 24 * 60 * 60 * 1000,
                 });
 
-                res.status(200).json({ status: 200, message: "User created successfully" });
+                res.status(200).json({ status: 200, message: "User created successfully" , data: {
+                    user_id: newUser.user_id,
+                    user_name: newUser.user_name,
+                    user_email: newUser.user_email,
+                }});
                 return;
             }
 
@@ -140,7 +144,11 @@ export const userController = {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
 
-            res.status(200).json({ status: 200, message: "You have successfully login!" });
+            res.status(200).json({ status: 200, message: "You have successfully login!" , data: {
+                user_id: user.user_id,
+                user_name: user.user_name,
+                user_email: user.user_email,
+            }});
             return;
 
         } catch (error) {
